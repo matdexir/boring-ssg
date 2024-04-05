@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gomarkdown/markdown"
@@ -65,12 +66,23 @@ func main() {
 			fmt.Println("Unable to read file: ", err)
 			continue
 		}
+		htmlStart := []byte(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>My Great Site</title>
+</head>
+<body>`)
+		htmlFinish := []byte(`</body>
+</html>`)
 		htmlData := mdToHTML(fileData)
+
+		finalHtml := slices.Concat(htmlStart, htmlData, htmlFinish)
 		fmt.Println(string(htmlData))
 		_, fileName := filepath.Split(file)
 		fileName = fileNameWithoutExtTrimSuffix(fileName)
 
-		os.WriteFile(publicDir+fileName+".html", htmlData, 0644)
+		os.WriteFile(publicDir+fileName+".html", finalHtml, 0644)
 
 	}
 
